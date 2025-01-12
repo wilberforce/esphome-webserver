@@ -49,6 +49,7 @@ interface entityConfig {
   value_numeric_history: number[];
   uom?: string;
   is_disabled_by_default?: boolean;
+  position?: number;
 }
 
 interface groupConfig {
@@ -418,6 +419,23 @@ class ActionRenderer {
     ></esp-switch>`;
   }
 
+  private _valve_switch(entity: entityConfig) {
+    const action_map = {
+      open: "open",
+      closed: "close",
+    };
+    return html`<esp-switch
+      color="var(--primary-color,currentColor)"
+      stateOn="OPEN"
+      stateOff="CLOSED"
+      .state=${entity.state}
+      @state="${(e: CustomEvent) => {
+        let act = action_map[e.detail.state.toLowerCase()];
+        this.actioner?.restAction(entity, act);
+      }}"
+    ></esp-switch>`;
+  }
+
   private _select(
     entity: entityConfig,
     action: string,
@@ -783,5 +801,29 @@ class ActionRenderer {
         ${current_temp} ${target_temp} ${modes}
       </div>
     `;
+  }
+
+  render_valve() {
+    if (!this.entity) return;
+    return [
+      html`<div
+        class="entity"
+        style="
+      width: 100%;"
+      >
+        ${this._valve_switch(this.entity)}
+        ${this.entity.position
+          ? this._range(
+              this.entity,
+              "set",
+              "position",
+              this.entity.position,
+              0.0,
+              1.0,
+              0.01
+            )
+          : ""}
+      </div> `,
+    ];
   }
 }

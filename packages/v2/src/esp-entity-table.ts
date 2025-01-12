@@ -36,6 +36,7 @@ interface entityConfig {
   effects?: string[];
   effect?: string;
   has_action?: boolean;
+  position?: number;
 }
 
 export function getBasePath() {
@@ -228,6 +229,25 @@ class ActionRenderer {
       @state="${(e: CustomEvent) => {
         let act = "turn_" + e.detail.state;
         this.actioner?.restAction(entity, act.toLowerCase());
+      }}"
+    ></esp-switch>`;
+  }
+
+  private _valve_switch(entity: entityConfig) {
+    const action_map = {
+      open: "open",
+      closed: "close",
+    };
+    return html`<esp-switch
+      color="var(--primary-color,currentColor)"
+      stateOn="OPEN"
+      stateOff="CLOSED"
+      labelOn="Open"
+      labelOff="Closed"
+      .state=${entity.state}
+      @state="${(e: CustomEvent) => {
+        let act = action_map[e.detail.state.toLowerCase()];
+        this.actioner?.restAction(entity, act);
       }}"
     ></esp-switch>`;
   }
@@ -550,5 +570,23 @@ class ActionRenderer {
       >
       ${target_temp_slider} ${modes}
     `;
+  }
+
+  render_valve() {
+    if (!this.entity) return;
+    return [
+      this._valve_switch(this.entity),
+      this.entity.position
+        ? this._range(
+            this.entity,
+            "set",
+            "position",
+            this.entity.position,
+            0.0,
+            1.0,
+            0.01
+          )
+        : "",
+    ];
   }
 }
