@@ -39,8 +39,14 @@ interface entityConfig {
 }
 
 export function getBasePath() {
-  let str = window.location.pathname;
-  return str.endsWith("/") ? str.slice(0, -1) : str;
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const target = urlParams.get('target')
+  if (target !== null) {
+    return "http://" + target
+  }
+  const pathname = window.location.pathname;
+  return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;;
 }
 
 let basePath = getBasePath();

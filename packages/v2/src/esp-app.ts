@@ -22,6 +22,7 @@ interface Config {
 export default class EspApp extends LitElement {
   @state() scheme: string = "";
   @state() ping: string = "";
+  @state() redirectUrl: string = "";
   @query("#beat")
   beat!: HTMLSpanElement;
 
@@ -119,9 +120,21 @@ export default class EspApp extends LitElement {
       : nothing;
   }
 
+  handleRedirect() {
+    window.location.href = "?target=" + this.redirectUrl;
+  }
+
   render() {
     return html`
-      <h1>
+    <div class="redirect-container">
+      <input
+        type="text"
+        placeholder="esphome address"
+        @input="${(e: Event) => (this.redirectUrl = (e.target as HTMLInputElement).value)}"
+      />
+      <button class="btn" @click="${this.handleRedirect}">Go</button>
+    </div>
+    <h1>
         <a href="https://esphome.io/web-api" class="logo">
           <esp-logo style="width: 52px; height: 40px; display: block;"></esp-logo>
         </a>
